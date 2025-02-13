@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 import models, schemas
 from database import SessionLocal, engine
 
-# Create tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -11,12 +10,11 @@ app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (adjust for production)
-    allow_methods=["*"],  # Allow all methods
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=["*"],
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
-# Database dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -25,9 +23,8 @@ def get_db():
         db.close()
 
 # ------------------ PRODUCT ENDPOINTS ------------------
-
-# Create a product
-@app.post("/products")  # <-- Note: No trailing slash
+# Crea producto
+@app.post("/products")
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
     db_product = models.Product(**product.dict())
     db.add(db_product)
@@ -35,13 +32,13 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
     db.refresh(db_product)
     return db_product
 
-# Get all products
+#Retorna todos los productos
 @app.get("/products")
 def get_products(db: Session = Depends(get_db)):
     products = db.query(models.Product).all()
-    return products  # Returns a list of products directly
+    return products
 
-# Get a single product
+#Retorne un producto
 @app.get("/products/{product_id}", response_model=schemas.Product)
 def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
@@ -49,14 +46,13 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return product
 
-# Update a product
+#Actualiza un producto
 @app.put("/products/{product_id}", response_model=schemas.Product)
 def update_product(product_id: int, product_data: schemas.ProductUpdate, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    
-    # Update only the fields provided in the request
+
     for key, value in product_data.dict(exclude_unset=True).items():
         setattr(product, key, value)
     
@@ -64,7 +60,7 @@ def update_product(product_id: int, product_data: schemas.ProductUpdate, db: Ses
     db.refresh(product)
     return product
 
-# Delete a product
+#Elimina un producto
 @app.delete("/products/{product_id}")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
@@ -74,6 +70,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     db.delete(product)
     db.commit()
     return {"message": "Product deleted successfully"}
+
 
 # ------------------ USER ENDPOINTS ------------------
 
