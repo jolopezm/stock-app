@@ -1,13 +1,21 @@
 from sqlalchemy import Column, Integer, String, Float
-from database import Base  # Correct import
+from database import Base
 
 # Product model
 class Product(Base):
     __tablename__ = "products"
-    id = Column(Integer, primary_key=True, index=True)
+    sku = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
+    brand = Column(String)
+    category = Column(String, nullable=True)
+    size = Column(Float)
+    color = Column(String, nullable=True)
     quantity = Column(Integer)
-    price = Column(Float)
+    promo_price = Column(Float, nullable=True)
+    discount_price = Column(Float, nullable=True)
+    normal_price = Column(Float)
+    description = Column(String, nullable=True)
+    entry_date = Column(Integer)
 
 # User model
 class User(Base):

@@ -4,19 +4,41 @@ from typing import Optional
 # Product Schemas
 class ProductCreate(BaseModel):
     name: str
+    brand: str
+    category: Optional[str] = None
+    size: float
+    color: Optional[str] = None
     quantity: int
-    price: float
+    promo_price: Optional[float] = None
+    discount_price: Optional[float] = None
+    normal_price: float
+    description: Optional[str] = None
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
+    #brand: Optional[str] = None
+    category: Optional[str] = None
+    size: Optional[float] = None
+    color: Optional[str] = None
     quantity: Optional[int] = None
-    price: Optional[float] = None
+    promo_price: Optional[float] = None
+    discount_price: Optional[float] = None
+    normal_price: Optional[float] = None
+    description: Optional[str] = None
 
 class Product(BaseModel):
-    id: int
+    sku: int
     name: str
+    brand: str
+    category: str
+    size: float
+    color: str
     quantity: int
-    price: float
+    promo_price: float
+    discount_price: float
+    normal_price: float
+    description: str
+    entry_date: int
 
     class Config:
         orm_mode = True

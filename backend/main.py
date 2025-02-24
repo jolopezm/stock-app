@@ -2,6 +2,9 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import models, schemas
 from database import SessionLocal, engine
+from datetime import datetime
+from algoritmos.generarSKU import generar_sku
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -23,14 +26,30 @@ def get_db():
         db.close()
 
 # ------------------ PRODUCT ENDPOINTS ------------------
-# Crea producto
+#Crea productos
 @app.post("/products")
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    db_product = models.Product(**product.dict())
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+def add_or_update_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    try:
+        sku = generar_sku(product.name, product.brand, product.size)
+        
+        existing_product = db.query(models.Product).filter(models.Product.sku == sku).first()
+        
+        if existing_product:
+            existing_product.quantity += product.quantity
+            db.commit()
+            db.refresh(existing_product)
+            return existing_product
+        else:
+            db_product = models.Product(**product.dict())
+            fecha = datetime.now().strftime("%d/%m/%Y")
+            db_product.entry_date = fecha 
+            db_product.sku = sku
+            db.add(db_product)
+            db.commit()
+            db.refresh(db_product)
+            return db_product
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 #Retorna todos los productos
 @app.get("/products")
@@ -41,7 +60,7 @@ def get_products(db: Session = Depends(get_db)):
 #Retorne un producto
 @app.get("/products/{product_id}", response_model=schemas.Product)
 def get_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    product = db.query(models.Product).filter(models.Product.sku == product_id).first()
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return product
@@ -58,12 +77,12 @@ def update_product(product_id: int, product_data: schemas.ProductUpdate, db: Ses
     
     db.commit()
     db.refresh(product)
-    return product
+    return
 
 #Elimina un producto
 @app.delete("/products/{product_id}")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    product = db.query(models.Product).filter(models.Product.sku == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     

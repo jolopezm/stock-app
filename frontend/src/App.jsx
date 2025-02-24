@@ -1,22 +1,26 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
-import CreateProductPage from './pages/CreateProductPage';
+import AddProductPage from './pages/AddProductPage';
 
 function App() {
   const [products, setProducts] = useState([]);
 
   return (
-    <div>
+    <div className='container'>
+      <header>
+        <h1>Stock App</h1>
+      </header>
       <Router>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/create-product">Create Product</Link>
-      </nav>
+        <ul className="breadcrumb">
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/add-product">Añade producto</Link></li>
+        </ul>
+
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/create-product" element={<CreateProductPage />} />
+        <Route path="/add-product" element={<AddProductPage />} />
       </Routes>
     </Router>
     </div>
