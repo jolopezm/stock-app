@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import brands from '../data/brands.json';
 import sizes from '../data/sizes.json';
 
-const AddProductForm = ({ onProductAdded }) => {
-  const [name, setName] = useState('');
-  const [brand, setBrand] = useState('');
-  const [category, setCategory] = useState('');
-  const [size, setSize] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [normal_price, setNormalPrice] = useState('');
+const UpdateProductForm = () => {
+  const { sku } = useParams();
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gender, setGender] = useState('');
-  
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+
   const menSizes = sizes.menSizes;
   const womenSizes = sizes.womenSizes;
 
@@ -21,91 +20,67 @@ const AddProductForm = ({ onProductAdded }) => {
     setSize('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    const quantityNumber = parseInt(quantity, 10);
-    const normalPriceNumber = parseFloat(normal_price);
-    const sizeNumber = parseFloat(size);
-
-    if (!name.trim()) {
-      setError('El nombre es necesario');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (isNaN(quantityNumber)) {
-      setError('Por fevor ingrese una cantidad valida');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (isNaN(normalPriceNumber)) {
-      setError('Por favor ingrese un precio valido');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (isNaN(sizeNumber)) {
-      setError('Por favor ingrese una talla valida');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (quantityNumber < 0 || normalPriceNumber < 0 || sizeNumber < 0) {
-      setError('Valores no pueden ser negativos');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const productData = {
-      name: name.trim(),
-      quantity: quantityNumber,
-      normal_price: normalPriceNumber,
-      category: category || null, 
-      brand: brand || null,
-      gender: gender,
-      size: sizeNumber, 
-    };
-
+  const fetchProduct = async () => {
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData),
-      });
-
+      const response = await fetch(`/api/products/${sku}`);
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server response error data:', errorData); 
-        throw new Error(errorData.detail || `Error añadiendo producto: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch product: ${response.status} - ${errorText}`);
       }
-
-      const newProduct = await response.json();
-      onProductAdded(newProduct);
-
-      setName('');
-      setQuantity('');
-      setNormalPrice('');
-      setCategory('');
-      setBrand("");
-      setSize('');
-      setError('');
+      const data = await response.json();
+      setProduct(data);
     } catch (error) {
-      console.error('Error añadiendo producto:', error); 
-      console.log(productData)
-      setError(error.message || 'Error añadiendo producto. Por favor, intente de nuevo.');
+      setError(error.message);
+      console.error('Fetch error:', error);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchProduct();
+  }, [sku]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch(`/api/products/${sku}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update product: ${response.status} - ${errorText}`);
+      }
+      alert('Producto actualizado con éxito');
+      fetchProduct(); // Refresh data after update
+    } catch (error) {
+      setError(error.message);
+      console.error('Update error:', error);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setProduct((prev) => ({ ...prev, [field]: value }));
+  };
+
+  if (loading) return <div>Loading product...</div>;
+  if (error) {
+    return (
+      <div>
+        <h1>Error loading product</h1>
+        <p>{error}</p>
+        <button onClick={fetchProduct}>Try again</button>
+      </div>
+    );
+  }
+
+  if (!product) return <p>Producto no encontrado.</p>;
+
   return (
     <form onSubmit={handleSubmit} className=''>
+      <p>SKU: {sku}</p>
       <div className="columns">
         <div className='column col-12'>
           {error && <div className="label label-error">{error}</div>}
@@ -116,7 +91,7 @@ const AddProductForm = ({ onProductAdded }) => {
           <input
             className='form-input'
             type="text"
-            value={name}
+            value={product.name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ingrese el nombre del producto"
             disabled={isSubmitting}
@@ -125,7 +100,7 @@ const AddProductForm = ({ onProductAdded }) => {
           <label className="form-label">Marca:</label>
           <select
             className='form-select'
-            value={brand}
+            value={product.brand}
             onChange={(e) => setBrand(e.target.value)}
             placeholder="Seleccione la marca del producto"
             disabled={isSubmitting}
@@ -155,7 +130,7 @@ const AddProductForm = ({ onProductAdded }) => {
             <label className="form-label">Talla:</label>
             <select
               className='form-select'
-              value={size}
+              value={product.size}
               onChange={(e) => setSize(e.target.value)}
               placeholder="Seleccione la talla del producto"
               disabled={!gender || isSubmitting}
@@ -173,7 +148,7 @@ const AddProductForm = ({ onProductAdded }) => {
           <label className="form-label">Categoría:</label>
           <select
             className='form-select'
-            value={category}
+            value={product.category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder="Seleccione la categoría del producto"
             disabled={isSubmitting}
@@ -187,7 +162,7 @@ const AddProductForm = ({ onProductAdded }) => {
           <input
             className='form-input'
             type="number"
-            value={quantity}
+            value={product.quantity}
             onChange={(e) => setQuantity(e.target.value)}
             min="0"
             placeholder="0"
@@ -201,7 +176,7 @@ const AddProductForm = ({ onProductAdded }) => {
             className='form-input'
             type="number"
             step="0.01"
-            value={normal_price}
+            value={product.normal_price}
             onChange={(e) => setNormalPrice(e.target.value)}
             min="0"
             placeholder="0.00"
@@ -213,7 +188,7 @@ const AddProductForm = ({ onProductAdded }) => {
             className='form-input'
             type="number"
             step="0.01"
-            value={normal_price}
+            value={product.normal_price}
             onChange={(e) => setNormalPrice(e.target.value)}
             min="0"
             placeholder="0.00"
@@ -247,4 +222,4 @@ const AddProductForm = ({ onProductAdded }) => {
   );
 };
 
-export default AddProductForm;
+export default UpdateProductForm;

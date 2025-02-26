@@ -1,11 +1,13 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 # Product Schemas
 class ProductCreate(BaseModel):
     name: str
     brand: str
     category: Optional[str] = None
+    gender: str
     size: float
     color: Optional[str] = None
     quantity: int
@@ -13,11 +15,13 @@ class ProductCreate(BaseModel):
     discount_price: Optional[float] = None
     normal_price: float
     description: Optional[str] = None
+    entry_date: datetime = None
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
-    #brand: Optional[str] = None
+    brand: Optional[str] = None
     category: Optional[str] = None
+    gender: Optional[str] = None
     size: Optional[float] = None
     color: Optional[str] = None
     quantity: Optional[int] = None
@@ -31,6 +35,7 @@ class Product(BaseModel):
     name: str
     brand: str
     category: str
+    gender: str
     size: float
     color: str
     quantity: int
@@ -38,7 +43,7 @@ class Product(BaseModel):
     discount_price: float
     normal_price: float
     description: str
-    entry_date: int
+    entry_date: datetime
 
     class Config:
         orm_mode = True

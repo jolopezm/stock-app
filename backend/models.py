@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, DateTime
+from datetime import datetime
 from database import Base
 
 # Product model
@@ -8,6 +9,7 @@ class Product(Base):
     name = Column(String, index=True)
     brand = Column(String)
     category = Column(String, nullable=True)
+    gender = Column(String)
     size = Column(Float)
     color = Column(String, nullable=True)
     quantity = Column(Integer)
@@ -15,7 +17,7 @@ class Product(Base):
     discount_price = Column(Float, nullable=True)
     normal_price = Column(Float)
     description = Column(String, nullable=True)
-    entry_date = Column(Integer)
+    entry_date = Column(DateTime, default=datetime.now)
 
 # User model
 class User(Base):
