@@ -15,7 +15,7 @@ class ProductCreate(BaseModel):
     discount_price: Optional[float] = None
     normal_price: float
     description: Optional[str] = None
-    entry_date: datetime = None
+    entry_date: str = None
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -43,7 +43,7 @@ class Product(BaseModel):
     discount_price: float
     normal_price: float
     description: str
-    entry_date: datetime
+    entry_date: str
 
     class Config:
         orm_mode = True

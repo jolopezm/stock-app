@@ -17,7 +17,7 @@ class Product(Base):
     discount_price = Column(Float, nullable=True)
     normal_price = Column(Float)
     description = Column(String, nullable=True)
-    entry_date = Column(DateTime, default=datetime.now)
+    entry_date = Column(String, default=datetime.today().strftime("%d/%m/%Y"))
 
 # User model
 class User(Base):

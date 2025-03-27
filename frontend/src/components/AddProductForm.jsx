@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import brands from '../data/brands.json';
 import sizes from '../data/sizes.json';
+import Toast from './Toast';
 
 const AddProductForm = ({ onProductAdded }) => {
   const [name, setName] = useState('');
@@ -12,7 +13,8 @@ const AddProductForm = ({ onProductAdded }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gender, setGender] = useState('');
-  
+  const [showToast, setShowToast] = useState(false)
+
   const menSizes = sizes.menSizes;
   const womenSizes = sizes.womenSizes;
 
@@ -32,30 +34,35 @@ const AddProductForm = ({ onProductAdded }) => {
 
     if (!name.trim()) {
       setError('El nombre es necesario');
+      setShowToast(true);
       setIsSubmitting(false);
       return;
     }
 
     if (isNaN(quantityNumber)) {
       setError('Por fevor ingrese una cantidad valida');
+      setShowToast(true);
       setIsSubmitting(false);
       return;
     }
 
     if (isNaN(normalPriceNumber)) {
       setError('Por favor ingrese un precio valido');
+      setShowToast(true);
       setIsSubmitting(false);
       return;
     }
 
     if (isNaN(sizeNumber)) {
       setError('Por favor ingrese una talla valida');
+      setShowToast(true);
       setIsSubmitting(false);
       return;
     }
 
     if (quantityNumber < 0 || normalPriceNumber < 0 || sizeNumber < 0) {
       setError('Valores no pueden ser negativos');
+      setShowToast(true);
       setIsSubmitting(false);
       return;
     }
@@ -99,6 +106,7 @@ const AddProductForm = ({ onProductAdded }) => {
       console.error('Error añadiendo producto:', error); 
       console.log(productData)
       setError(error.message || 'Error añadiendo producto. Por favor, intente de nuevo.');
+      setShowToast(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,9 +116,11 @@ const AddProductForm = ({ onProductAdded }) => {
     <form onSubmit={handleSubmit} className=''>
       <div className="columns">
         <div className='column col-12'>
-          {error && <div className="label label-error">{error}</div>}
+          {error && showToast && (
+            <Toast type="toast-error" message={error} onClose={() => setShowToast(false)} />
+          )}
         </div>
-
+          
         <div className="column col-lg-6 col-sm-12">
           <label className="form-label">Nombre:</label>
           <input

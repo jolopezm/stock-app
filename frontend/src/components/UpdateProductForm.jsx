@@ -7,8 +7,13 @@ const UpdateProductForm = () => {
   const { sku } = useParams();
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [gender, setGender] = useState('');
   const [product, setProduct] = useState(null);
+  const [name, setName] = useState(null);
+  const [brand, setBrand] = useState(null);
+  const [category, setCategory] = useState(null);
+  const [size, setSize] = useState(null);
+  const [normal_price, setNormalPrice] = useState(null);
+  const [gender, setGender] = useState('');
   const [loading, setLoading] = useState(true);
 
 
@@ -92,7 +97,7 @@ const UpdateProductForm = () => {
             className='form-input'
             type="text"
             value={product.name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setProduct(e.target.value)}
             placeholder="Ingrese el nombre del producto"
             disabled={isSubmitting}
           />
@@ -101,7 +106,7 @@ const UpdateProductForm = () => {
           <select
             className='form-select'
             value={product.brand}
-            onChange={(e) => setBrand(e.target.value)}
+            onChange={(e) => setProduct.brand(e.target.value)}
             placeholder="Seleccione la marca del producto"
             disabled={isSubmitting}
           >
@@ -131,7 +136,7 @@ const UpdateProductForm = () => {
             <select
               className='form-select'
               value={product.size}
-              onChange={(e) => setSize(e.target.value)}
+              onChange={(e) => setProduct.size(e.target.value)}
               placeholder="Seleccione la talla del producto"
               disabled={!gender || isSubmitting}
             >
@@ -149,7 +154,7 @@ const UpdateProductForm = () => {
           <select
             className='form-select'
             value={product.category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => setProduct.category(e.target.value)}
             placeholder="Seleccione la categoría del producto"
             disabled={isSubmitting}
           >
@@ -163,7 +168,7 @@ const UpdateProductForm = () => {
             className='form-input'
             type="number"
             value={product.quantity}
-            onChange={(e) => setQuantity(e.target.value)}
+            onChange={(e) => setProduct.quantity(e.target.value)}
             min="0"
             placeholder="0"
             disabled={isSubmitting}
@@ -177,7 +182,7 @@ const UpdateProductForm = () => {
             type="number"
             step="0.01"
             value={product.normal_price}
-            onChange={(e) => setNormalPrice(e.target.value)}
+            onChange={(e) => setProduct.normal_price(e.target.value)}
             min="0"
             placeholder="0.00"
             disabled={isSubmitting}
@@ -189,7 +194,7 @@ const UpdateProductForm = () => {
             type="number"
             step="0.01"
             value={product.normal_price}
-            onChange={(e) => setNormalPrice(e.target.value)}
+            onChange={(e) => setProduct.normal_price(e.target.value)}
             min="0"
             placeholder="0.00"
             disabled={isSubmitting}

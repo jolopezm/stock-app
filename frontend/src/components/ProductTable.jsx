@@ -132,7 +132,7 @@ const ProductTable = () => {
                     <td>{product.size}</td>
                     <td>{product.quantity}</td>
                     <td>${product.normal_price.toFixed(2)}</td>
-                    <td>{new Date(product.entry_date * 1000).toLocaleDateString()}</td>
+                    <td>{product.entry_date}</td>
                   </tr>
                 ))}
               </tbody>

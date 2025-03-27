@@ -27,16 +27,18 @@ def get_db():
     finally:
         db.close()
 
+'''
 def migrate_entry_dates(db: Session):
     products = db.query(models.Product).all()
     for product in products:
         if isinstance(product.entry_date, str):
             product.entry_date = int(datetime.strptime(product.entry_date, "%d/%m/%Y").timestamp())
     db.commit()
+'''
 
 # Run once
 db = SessionLocal()
-migrate_entry_dates(db)
+#migrate_entry_dates(db)
 db.close()
 # ------------------ PRODUCT ENDPOINTS ------------------
 #Crea productos
